@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A Little Question</title>
+  <meta name="description" content="A little question for a special lady.">
+  <meta property="og:title" content="A Little Question">
+  <meta property="og:description" content="A little question for a special lady.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="A Little Question">
+  <meta name="twitter:description" content="A little question for a special lady.">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #231f20;
+      --muted: #6f6468;
+      --rose: #e94f7a;
+      --rose-dark: #bd2754;
+      --mint: #4fb389;
+      --mint-dark: #2f805f;
+      --line: rgba(35, 31, 32, 0.13);
+      --shadow: 0 22px 70px rgba(140, 45, 82, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 18% 20%, rgba(255, 142, 177, 0.32), transparent 26rem),
+        radial-gradient(circle at 82% 18%, rgba(93, 191, 149, 0.25), transparent 22rem),
+        linear-gradient(135deg, #fff1f5 0%, #fffaf2 52%, #f0fff9 100%);
+      overflow-x: hidden;
+    }
+
+    .page {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      padding: 32px 18px;
+    }
+
+    .stage {
+      width: min(900px, 100%);
+      min-height: min(660px, calc(100vh - 64px));
+      display: grid;
+      align-items: center;
+      justify-items: center;
+      gap: 28px;
+      padding: clamp(28px, 6vw, 64px);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .scene {
+      display: none;
+      width: 100%;
+      animation: enter 420ms ease both;
+    }
+
+    .scene.is-active {
+      display: grid;
+      gap: 28px;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--rose-dark);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 760px;
+      margin: 0;
+      font-size: clamp(2.35rem, 6vw, 5rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .date {
+      color: var(--rose-dark);
+      white-space: nowrap;
+    }
+
+    .support {
+      max-width: 560px;
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 2.3vw, 1.2rem);
+      line-height: 1.6;
+    }
+
+    .choice-area {
+      position: relative;
+      width: min(520px, 100%);
+      height: 190px;
+      margin-top: 8px;
+    }
+
+    button,
+    .venue-card {
+      border: 0;
+      border-radius: 8px;
+      font: inherit;
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
+    }
+
+    button {
+      min-width: 128px;
+      min-height: 54px;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    .venue-card:focus-visible {
+      outline: 3px solid rgba(233, 79, 122, 0.35);
+      outline-offset: 4px;
+    }
+
+    .yes-button {
+      position: absolute;
+      left: calc(50% - 152px);
+      top: 68px;
+      color: #fff;
+      background: var(--rose);
+      box-shadow: 0 12px 24px rgba(233, 79, 122, 0.28);
+    }
+
+    .yes-button:hover {
+      transform: translateY(-2px);
+      background: var(--rose-dark);
+      box-shadow: 0 16px 30px rgba(189, 39, 84, 0.3);
+    }
+
+    .no-button {
+      position: absolute;
+      left: calc(50% + 24px);
+      top: 68px;
+      color: #fff;
+      background: #343035;
+      box-shadow: 0 12px 24px rgba(35, 31, 32, 0.18);
+      will-change: left, top;
+    }
+
+    .time-panel,
+    .final-panel {
+      display: grid;
+      width: min(560px, 100%);
+      gap: 22px;
+      padding-top: 6px;
+    }
+
+    .time-row {
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+    }
+
+    label {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .time-input {
+      width: min(260px, 100%);
+      height: 58px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 18px;
+      color: var(--ink);
+      background: #fff;
+      font: inherit;
+      font-size: 1.25rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    select {
+      width: min(260px, 100%);
+      height: 58px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 18px;
+      color: var(--ink);
+      background: #fff;
+      font: inherit;
+      font-size: 1.08rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .time-options {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .time-chip {
+      min-width: 0;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    .time-chip:hover {
+      color: #fff;
+      background: var(--mint);
+      transform: translateY(-2px);
+    }
+
+    .confirm-button {
+      justify-self: center;
+      min-width: 190px;
+      color: #fff;
+      background: var(--mint);
+      box-shadow: 0 12px 24px rgba(79, 179, 137, 0.24);
+    }
+
+    .confirm-button:hover {
+      background: var(--mint-dark);
+      transform: translateY(-2px);
+    }
+
+    .venue-grid {
+      display: grid;
+      width: 100%;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .venue-card {
+      display: grid;
+      min-height: 230px;
+      gap: 14px;
+      align-content: center;
+      justify-items: center;
+      padding: 18px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: 0 14px 36px rgba(35, 31, 32, 0.08);
+    }
+
+    .venue-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(233, 79, 122, 0.38);
+      box-shadow: 0 18px 42px rgba(140, 45, 82, 0.16);
+    }
+
+    .logo-box {
+      display: grid;
+      width: 100%;
+      min-height: 132px;
+      place-items: center;
+    }
+
+    .il-forno {
+      color: #dd1f1f;
+      font-family: "Brush Script MT", "Segoe Script", cursive;
+      font-size: clamp(2.4rem, 5vw, 4.4rem);
+      line-height: 0.9;
+      border-bottom: 6px solid #329b50;
+    }
+
+    .lazy-crazy {
+      width: 132px;
+      height: 132px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #17161b;
+      background: #ebe8e9;
+      font-weight: 950;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .lazy-crazy span {
+      display: grid;
+      gap: 4px;
+      color: #df382d;
+      font-size: 1rem;
+      line-height: 1.05;
+    }
+
+    .kfc {
+      color: #c70c2d;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(3rem, 7vw, 5rem);
+      font-style: italic;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .venue-name {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 900;
+    }
+
+    .result {
+      min-height: 30px;
+      margin: 0;
+      color: var(--rose-dark);
+      font-weight: 800;
+    }
+
+    .summary {
+      width: 100%;
+      margin: 0;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 800;
+      line-height: 1.7;
+      white-space: pre-line;
+    }
+
+    @keyframes enter {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .venue-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .venue-card {
+        min-height: 190px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        padding: 18px 12px;
+      }
+
+      .stage {
+        min-height: calc(100vh - 36px);
+        padding: 28px 16px;
+      }
+
+      .choice-area {
+        height: 250px;
+      }
+
+      .yes-button {
+        left: calc(50% - 64px);
+        top: 40px;
+      }
+
+      .no-button {
+        left: calc(50% - 64px);
+        top: 132px;
+      }
+
+      .time-options {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="stage" aria-live="polite">
+      <div class="scene is-active" id="questionScene">
+        <p class="eyebrow">A very important question</p>
+        <h1>Will you go on a date with me on <span class="date">31.05.2026</span>?</h1>
+        <p class="support">Choose carefully. One answer is emotionally stable, the other has chosen chaos.</p>
+
+        <div class="choice-area" id="choiceArea">
+          <button class="yes-button" id="yesButton" type="button">Yes 🐱</button>
+          <button class="no-button" id="noButton" type="button" aria-label="No, if you can catch it">No ☢️</button>
+        </div>
+      </div>
+
+      <div class="scene" id="timeScene">
+        <p class="eyebrow">Perfect</p>
+        <h1>Pick our time</h1>
+        <p class="support">Choose any time from 01:00 to 23:59.</p>
+
+        <form class="time-panel" id="timeForm">
+          <div class="time-row">
+            <label for="dateTime">Time</label>
+            <input class="time-input" id="dateTime" name="dateTime" type="text" inputmode="numeric" pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$" value="19:00" maxlength="5" required>
+          </div>
+
+          <div class="time-row">
+            <label for="timeList">Choose from the list</label>
+            <select id="timeList" name="timeList" aria-label="Choose time from list"></select>
+          </div>
+
+          <div class="time-options" aria-label="Quick time choices">
+            <button class="time-chip" type="button" data-time="13:00">13:00</button>
+            <button class="time-chip" type="button" data-time="17:00">17:00</button>
+            <button class="time-chip" type="button" data-time="19:00">19:00</button>
+            <button class="time-chip" type="button" data-time="21:00">21:00</button>
+          </div>
+
+          <button class="confirm-button" type="submit">Choose a place</button>
+          <p class="result" id="timeError"></p>
+        </form>
+      </div>
+
+      <div class="scene" id="venueScene">
+        <p class="eyebrow">Almost there</p>
+        <h1>Choose the place</h1>
+        <p class="support">One click and our date plan is officially dangerous to cancel.</p>
+
+        <div class="venue-grid" aria-label="Venue choices">
+          <button class="venue-card" type="button" data-venue="il Forno">
+            <span class="logo-box il-forno">il Forno</span>
+            <span class="venue-name">il Forno</span>
+          </button>
+
+          <button class="venue-card" type="button" data-venue="Lazy Crazy">
+            <span class="logo-box">
+              <span class="lazy-crazy"><span>LAZY<br>CRAZY</span></span>
+            </span>
+            <span class="venue-name">Lazy Crazy</span>
+          </button>
+
+          <button class="venue-card" type="button" data-venue="KFC">
+            <span class="logo-box kfc">KFC</span>
+            <span class="venue-name">KFC</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="scene" id="finalScene">
+        <p class="eyebrow">You are the BEST</p>
+        <h1>It is a date <span aria-hidden="true">♥</span></h1>
+        <p class="support">Thank you for your answer, my lady!<br>Please rest assured that your date will be on time!</p>
+
+        <div class="final-panel">
+          <p class="summary" id="summaryMessage"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const scenes = {
+      question: document.querySelector("#questionScene"),
+      time: document.querySelector("#timeScene"),
+      venue: document.querySelector("#venueScene"),
+      final: document.querySelector("#finalScene")
+    };
+
+    const choiceArea = document.querySelector("#choiceArea");
+    const yesButton = document.querySelector("#yesButton");
+    const noButton = document.querySelector("#noButton");
+    const timeInput = document.querySelector("#dateTime");
+    const timeList = document.querySelector("#timeList");
+    const timeForm = document.querySelector("#timeForm");
+    const timeError = document.querySelector("#timeError");
+    const summaryMessage = document.querySelector("#summaryMessage");
+
+    const CONFIG = {
+      date: "31.05.2026",
+      googleFormResponseUrl: "",
+      googleFormEntries: {
+        date: "",
+        time: "",
+        venue: ""
+      }
+    };
+
+    const datePlan = {
+      date: CONFIG.date,
+      time: "",
+      venue: ""
+    };
+
+    function showScene(name) {
+      Object.values(scenes).forEach((scene) => scene.classList.remove("is-active"));
+      scenes[name].classList.add("is-active");
+    }
+
+    function moveNoButton() {
+      const areaRect = choiceArea.getBoundingClientRect();
+      const buttonRect = noButton.getBoundingClientRect();
+      const padding = 10;
+      const maxLeft = Math.max(padding, areaRect.width - buttonRect.width - padding);
+      const maxTop = Math.max(padding, areaRect.height - buttonRect.height - padding);
+
+      let nextLeft = padding + Math.random() * (maxLeft - padding);
+      let nextTop = padding + Math.random() * (maxTop - padding);
+
+      const yesRect = yesButton.getBoundingClientRect();
+      const yesLeft = yesRect.left - areaRect.left;
+      const yesTop = yesRect.top - areaRect.top;
+      const overlapsYes = Math.abs(nextLeft - yesLeft) < buttonRect.width + 18
+        && Math.abs(nextTop - yesTop) < buttonRect.height + 18;
+
+      if (overlapsYes) {
+        nextLeft = nextLeft > areaRect.width / 2 ? padding : maxLeft;
+      }
+
+      noButton.style.left = `${nextLeft}px`;
+      noButton.style.top = `${nextTop}px`;
+    }
+
+    function buildPlanMessage() {
+      return `Date: ${datePlan.date}\nTime: ${datePlan.time}\nPlace: ${datePlan.venue}`;
+    }
+
+    function isValidTime(value) {
+      return /^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(value) && value >= "01:00" && value <= "23:59";
+    }
+
+    function formatTimeInput(value) {
+      const digits = value.replace(/\D/g, "").slice(0, 4);
+
+      if (digits.length <= 2) {
+        return digits;
+      }
+
+      return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+    }
+
+    function buildTimeList() {
+      const startMinutes = 60;
+      const endMinutes = 23 * 60 + 59;
+      const stepMinutes = 15;
+
+      for (let minutes = startMinutes; minutes <= endMinutes; minutes += stepMinutes) {
+        const hours = String(Math.floor(minutes / 60)).padStart(2, "0");
+        const mins = String(minutes % 60).padStart(2, "0");
+        const value = `${hours}:${mins}`;
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        timeList.appendChild(option);
+      }
+
+      const finalOption = document.createElement("option");
+      finalOption.value = "23:59";
+      finalOption.textContent = "23:59";
+      timeList.appendChild(finalOption);
+      timeList.value = timeInput.value;
+    }
+
+    function buildFilledFormUrl() {
+      const params = new URLSearchParams({
+        [googleFormEntries.date]: datePlan.date,
+        [googleFormEntries.time]: datePlan.time,
+        [googleFormEntries.venue]: datePlan.venue
+      });
+
+      return `${googleFormUrl}?usp=pp_url&${params.toString()}`;
+    }
+
+    function submitAnswerForm() {
+      const { googleFormEntries, googleFormResponseUrl } = CONFIG;
+      const hasGoogleFormConfig = googleFormResponseUrl
+        && googleFormEntries.date
+        && googleFormEntries.time
+        && googleFormEntries.venue;
+
+      if (!hasGoogleFormConfig) {
+        return;
+      }
+
+      const iframeName = "hiddenGoogleFormSubmit";
+      let iframe = document.querySelector(`iframe[name="${iframeName}"]`);
+
+      if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.name = iframeName;
+        iframe.hidden = true;
+        document.body.appendChild(iframe);
+      }
+
+      const form = document.createElement("form");
+      form.action = googleFormResponseUrl;
+      form.method = "POST";
+      form.target = iframeName;
+      form.hidden = true;
+
+      Object.entries({
+        [googleFormEntries.date]: datePlan.date,
+        [googleFormEntries.time]: datePlan.time,
+        [googleFormEntries.venue]: datePlan.venue
+      }).forEach(([name, value]) => {
+        const input = document.createElement("input");
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+      form.remove();
+    }
+
+    async function notifyPlan(message) {
+      localStorage.setItem("datePlanChoice", JSON.stringify({
+        ...datePlan,
+        savedAt: new Date().toISOString()
+      }));
+
+      if (!("Notification" in window)) {
+        return;
+      }
+
+      const permission = Notification.permission === "default"
+        ? await Notification.requestPermission()
+        : Notification.permission;
+
+      if (permission === "granted") {
+        new Notification("Date plan selected", { body: message });
+      }
+    }
+
+    choiceArea.addEventListener("pointermove", (event) => {
+      const noRect = noButton.getBoundingClientRect();
+      const dangerDistance = 36;
+      const nearX = event.clientX >= noRect.left - dangerDistance && event.clientX <= noRect.right + dangerDistance;
+      const nearY = event.clientY >= noRect.top - dangerDistance && event.clientY <= noRect.bottom + dangerDistance;
+
+      if (nearX && nearY) {
+        moveNoButton();
+      }
+    });
+
+    noButton.addEventListener("pointerenter", moveNoButton);
+    noButton.addEventListener("click", moveNoButton);
+
+    yesButton.addEventListener("click", () => {
+      showScene("time");
+      timeInput.focus();
+    });
+
+    timeInput.addEventListener("input", () => {
+      timeInput.value = formatTimeInput(timeInput.value);
+      timeList.value = timeInput.value;
+    });
+
+    timeList.addEventListener("change", () => {
+      timeInput.value = timeList.value;
+      timeError.textContent = "";
+    });
+
+    document.querySelectorAll("[data-time]").forEach((button) => {
+      button.addEventListener("click", () => {
+        timeInput.value = button.dataset.time;
+        timeList.value = button.dataset.time;
+        timeError.textContent = "";
+      });
+    });
+
+    timeForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const value = timeInput.value;
+
+      if (!isValidTime(value)) {
+        timeError.textContent = "Please choose a time from 01:00 to 23:59.";
+        return;
+      }
+
+      datePlan.time = value;
+      timeError.textContent = "";
+      showScene("venue");
+    });
+
+    document.querySelectorAll("[data-venue]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        datePlan.venue = button.dataset.venue;
+        const message = buildPlanMessage();
+        summaryMessage.textContent = message;
+        showScene("final");
+        await notifyPlan(message);
+        submitAnswerForm();
+      });
+    });
+
+    buildTimeList();
+  </script>
+</body>
+</html>
